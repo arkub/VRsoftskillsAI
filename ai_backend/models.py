@@ -5,5 +5,7 @@ class TextRequest(BaseModel):
     text: str
 
 
-# Note: TranscribeRequest is not used since we accept binary data directly
-# in the request body for transcription endpoint
+class NPCResponse(BaseModel):
+    npc_response: str   # natural conversational reply
+    reaction: str       # description of avatar’s physical/voice reaction
+    coach_tip: str      # short coaching feedback
