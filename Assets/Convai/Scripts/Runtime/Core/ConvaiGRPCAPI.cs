@@ -647,6 +647,12 @@ namespace Convai.Scripts.Runtime.Core
         private void ProcessActionResponse(GetResponseResponse result, ConvaiNPC npc)
         {
             ConvaiNPC convaiNPC = NPCToSendResponse(npc);
+            if (convaiNPC == null)
+            {
+                ConvaiLogger.Error("ConvaiNPC reference is null in ProcessActionResponse. Cannot process action response.", ConvaiLogger.LogCategory.Character);
+                return;
+            }
+            
             if (result.ActionResponse != null && convaiNPC.actionsHandler != null)
                 convaiNPC.actionsHandler.actionResponseList.Add(result.ActionResponse.Action);
         }
@@ -654,6 +660,12 @@ namespace Convai.Scripts.Runtime.Core
         private void ProcessAudioResponse(GetResponseResponse result, Queue<LipSyncBlendFrameData> lipSyncBlendFrameQueue, ref bool firstSilFound, ConvaiNPC npc)
         {
             ConvaiNPC convaiNPC = NPCToSendResponse(npc);
+            if (convaiNPC == null)
+            {
+                ConvaiLogger.Error("ConvaiNPC reference is null in ProcessAudioResponse. Cannot process audio response.", ConvaiLogger.LogCategory.Character);
+                return;
+            }
+            
             if (result.AudioResponse?.AudioData == null) return;
 
             if (result.AudioResponse.AudioData.ToByteArray().Length > 46)
@@ -719,6 +731,12 @@ namespace Convai.Scripts.Runtime.Core
         private void ProcessDebugLog(GetResponseResponse result, AsyncDuplexStreamingCall<GetResponseRequest, GetResponseResponse> call, ConvaiNPC npc)
         {
             ConvaiNPC convaiNPC = NPCToSendResponse(npc);
+            if (convaiNPC == null)
+            {
+                ConvaiLogger.Error("ConvaiNPC reference is null in ProcessDebugLog. Cannot enqueue debug response.", ConvaiLogger.LogCategory.Character);
+                return;
+            }
+            
             if (result.AudioResponse == null && result.DebugLog != null)
                 convaiNPC.EnqueueResponse(call.ResponseStream.Current);
         }
@@ -726,6 +744,12 @@ namespace Convai.Scripts.Runtime.Core
         private void UpdateSessionId(GetResponseResponse result, ConvaiNPC npc)
         {
             ConvaiNPC convaiNPC = NPCToSendResponse(npc);
+            if (convaiNPC == null)
+            {
+                ConvaiLogger.Error("ConvaiNPC reference is null in UpdateSessionId. Cannot update session ID.", ConvaiLogger.LogCategory.Character);
+                return;
+            }
+            
             if (convaiNPC.sessionID == "-1")
                 convaiNPC.sessionID = result.SessionId;
         }
@@ -738,6 +762,12 @@ namespace Convai.Scripts.Runtime.Core
         private void TriggerNarrativeSection(GetResponseResponse result, ConvaiNPC npc)
         {
             ConvaiNPC convaiNPC = NPCToSendResponse(npc);
+            if (convaiNPC == null)
+            {
+                ConvaiLogger.Error("ConvaiNPC reference is null in TriggerNarrativeSection. Cannot trigger narrative section.", ConvaiLogger.LogCategory.Character);
+                return;
+            }
+            
             // Trigger the current section of the narrative design manager in the active NPC
             if (result.BtResponse != null)
             {
