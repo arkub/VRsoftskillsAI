@@ -61,12 +61,13 @@ def text_to_speech(text):
             model=OPENAI_TTS_MODEL,
             voice="alloy",
             input=text,
+            response_format="wav",
             instructions ="Speak in an Indian English accent, slightly formal and clear."
-        )as response:
-            # prepare local path (C:\Prashu\ai-interviewer\question.mp3)
-            # response.stream_to_file(os.path.join(f'C:\\Prashu\\ai-interviewer\\question_{interview_id}.mp3'))
-            response.stream_to_file(f"/mnt/ai-interviewer/response.mp3")
-            return {"success": True, "message": "Audio generated successfully"}
+        ) as response:
+            logger.info(f"Response: {response}")
+            # Read binary audio data from streaming response
+            audio_data = response.read()
+            return {"success": True, "audio_data": audio_data, "message": "Audio generated successfully"}
     
     except Exception as e:
         _, _, exc_tb = sys.exc_info()

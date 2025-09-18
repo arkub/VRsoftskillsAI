@@ -1,10 +1,12 @@
 from fastapi import FastAPI, HTTPException, status, Request, Header
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from utils.logger import logger
 from utils.speech import text_to_speech, speech_to_text_from_binary
 import os
 import uvicorn
 from typing import Optional
+from models import TextRequest
 
 
 app = FastAPI()
@@ -24,20 +26,32 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/v1/speech/generate", response_model=dict, status_code=status.HTTP_200_OK, summary="Generate an audio file from a text.", description="Generate an audio file from a text.", tags=["Audio Generation"])
-async def generate_audio(text: str):
+@app.post("/v1/speech/generate_audio", status_code=status.HTTP_200_OK, summary="Generate an audio file from a text.", description="Generate an audio file from a text.", tags=["Audio Generation"])
+async def generate_audio(
+    request: TextRequest,
+    x_api_key: Optional[str] = Header(None, alias="x-api-key")
+):
     """
     Generate an audio file from a text.
     Args:
-        text: str - The text to generate the audio from.
+        request: TextRequest containing the text to convert
+        x_api_key: API key for authentication
     Returns:
-        dict: A dictionary containing the audio file.
+        Binary WAV audio data
     """
-    response = text_to_speech(text=text)
+    # Validate API key
+    if x_api_key != os.getenv("API_KEY"):
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    response = text_to_speech(text=request.text)
     if response["success"]:
         logger.info(f"Audio generated successfully!")
-        return response
-    
+        return Response(
+            content=response["audio_data"],
+            media_type="audio/wav",
+            headers={"Content-Disposition": "attachment; filename=response.wav"}
+        )
+
     else:
         logger.error(f"Error in generating audio: {response['message']}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["message"])
